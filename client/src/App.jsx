@@ -8,12 +8,11 @@ function App() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState(null);
-  const [age, setAge] = useState('');
+  const [age, setAge] = useState(1);
 
   const [touched, setTouched] = useState({
     name: false,
     phone: false,
-    gender: false,
     age: false
   });
 
@@ -47,7 +46,6 @@ function App() {
   const validate = () => ({
       name: name.length === 0,
       phone: phone.length === 0,
-      gender: gender === null,
       age: age <= 0 && age > 122,
   });
 
@@ -62,7 +60,6 @@ function App() {
     setTouched({
       name: false,
       phone: false,
-      gender: false,
       age: false
     });
   };
@@ -89,9 +86,12 @@ function App() {
             type="text"
             value={name}
             onChange={event => setName(event.target.value)}
-            className='form__text-input'
             onBlur={() => setTouched({ ...touched, name: true })}
             required
+            className={classNames(
+              'form__text-input',
+              { 'form__text-input--error': errors.name && touched.name }
+            )}
           />
         </label>
         <label
@@ -105,9 +105,12 @@ function App() {
             type='tel'
             value={phone}
             onChange={event => setPhone(event.target.value)}
-            className='form__text-input'
             onBlur={() => setTouched({ ...touched, phone: true })}
             required
+            className={classNames(
+              'form__text-input',
+              { 'form__text-input--error': errors.phone && touched.phone }
+            )}
           />
         </label>
         <span className='form__radio-buttons'>
@@ -120,7 +123,6 @@ function App() {
               type='radio'
               value={true}
               onChange={event => setGender(event.target.value)}
-              onBlur={() => setTouched({ ...touched, gender: true })}
               required
             />
           </label>
@@ -133,7 +135,6 @@ function App() {
               type='radio'
               value={false}
               onChange={event => setGender(event.target.value)}
-              onBlur={() => setTouched({ ...touched, gender: true })}
             />
           </label>
         </span>
@@ -148,9 +149,12 @@ function App() {
             type="number"
             value={age}
             onChange={event => setAge(event.target.value)}
-            className='form__text-input'
             onBlur={() => setTouched({ ...touched, age: true })}
             required
+            className={classNames(
+              'form__text-input',
+              { 'form__text-input--error': errors.age && touched.age }
+            )}
           />
         </label>
         <button
