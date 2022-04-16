@@ -16,6 +16,8 @@ function App() {
     age: false
   });
 
+  const [checkedGender, setCheckedGender] = useState({ male: false, female: false });
+
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -28,6 +30,7 @@ function App() {
 
     cleanInputs();
     cleanErrors();
+    setCheckedGender({ male: false, female: false });
 
     await axios.post(
       'http://localhost:3001/users',
@@ -39,14 +42,15 @@ function App() {
       }
     );
 
-    axios.get('http://localhost:3001/users')
-      .then(responce => setUsers(responce.data));
+    const responce = await axios.get('http://localhost:3001/users');
+    setUsers(responce.data);
   }
 
   const validate = () => ({
       name: name.length === 0,
-      phone: phone.length === 0,
-      age: age <= 0 && age > 122,
+      phone: phone.length === 0 || phone.length < 12,
+      gender: gender === null,
+      age: age <= 0 || age > 122,
   });
 
   const cleanInputs = () => {
@@ -67,6 +71,18 @@ function App() {
   const errors = validate();
 
   const isDisabled = Object.keys(errors).some(x => errors[x]);
+
+  const handlePhoneChange = (event) => {
+    const { value } = event.target;
+
+    if (value === '' || /[0-9]/.test(value)) {
+      if (phone.length < value.length && (phone.length === 3 || phone.length === 7)) {
+        setPhone((prevPhone) => `${prevPhone}-${value[value.length - 1]}`);
+      } else {
+        setPhone(value);
+      }
+    }
+  }
 
   return (
     <div className='App'>
@@ -97,14 +113,16 @@ function App() {
         <label
           className={classNames(
             'form__label',
-            { 'form__label--error': errors.phone && touched.phone }
+            { 'form__label--format': !errors.phone || !touched.phone },
+            { 'form__label--format-error': errors.phone && touched.phone }
           )}
         >
           Phone :&nbsp;
           <input
             type='tel'
+            maxLength={12}
             value={phone}
-            onChange={event => setPhone(event.target.value)}
+            onChange={handlePhoneChange}
             onBlur={() => setTouched({ ...touched, phone: true })}
             required
             className={classNames(
@@ -122,7 +140,11 @@ function App() {
               name='gender'
               type='radio'
               value={true}
-              onChange={event => setGender(event.target.value)}
+              checked={checkedGender.male}
+              onChange={event => {
+                setGender(event.target.value);
+                setCheckedGender({ ...checkedGender, male: true })
+              }}
               required
             />
           </label>
@@ -134,7 +156,11 @@ function App() {
               name='gender'
               type='radio'
               value={false}
-              onChange={event => setGender(event.target.value)}
+              checked={checkedGender.female}
+              onChange={event => {
+                setGender(event.target.value);
+                setCheckedGender({ ...checkedGender, female: true });
+              }}
             />
           </label>
         </span>
@@ -166,12 +192,15 @@ function App() {
         </button>
       </form>
       <table className='table'>
-        <tr className='table__row'>
-          <th className='table__head'>Name</th>
-          <th className='table__head'>Phone</th>
-          <th className='table__head'>Gender</th>
-          <th className='table__head'>Age</th>
-        </tr>
+        <thead>
+          <tr className='table__row'>
+            <th className='table__head'>Name</th>
+            <th className='table__head'>Phone</th>
+            <th className='table__head'>Gender</th>
+            <th className='table__head'>Age</th>
+          </tr>
+        </thead>
+        <tbody>
         {users.map(user => (
           <tr key={user._id} className='table__row'>
             <td className='table__data'>{user.name}</td>
@@ -180,6 +209,7 @@ function App() {
             <td className='table__data'>{user.age}</td>
           </tr>
         ))}
+        </tbody>
       </table>
     </div>
   );

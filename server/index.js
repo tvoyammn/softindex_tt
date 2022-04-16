@@ -32,8 +32,8 @@ app.post('/users', async (req, res) => {
   })
 
   try {
-    await user.save()
-      .then(savedUser => res.send(savedUser));
+    const savedUser = await user.save()
+    res.send(savedUser);
   } catch(err) {
     console.log(err);
   }

@@ -21,6 +21,21 @@
   font-size: 20px;
 }
 
+.form__label--format::after {
+  content: 'Format: 123-456-7890';
+  position: absolute;
+  transform: translate(45%, 130%);
+  font-size: 16px;
+}
+
+.form__label--format-error::after {
+  content: 'Invalid input format: 123-456-7890';
+  position: absolute;
+  transform: translate(20%, 130%);
+  font-size: 16px;
+  color: red;
+}
+
 .form__label--error::after {
   content: 'Invalid input';
   position: absolute;
